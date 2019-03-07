@@ -14,7 +14,6 @@ app-root {
     display: block;
 }
 
-
 .pin {
     position: relative;
     top: -23px;
@@ -23,6 +22,7 @@ app-root {
     width: 8px;
     height: 8px;
   }
+
   
   .pin::after {
     position: absolute;
@@ -33,4 +33,28 @@ app-root {
     left: -6px;
     border: 10px solid transparent;
     border-top: 17px solid blue;
+  }
+
+  .pin-future {
+      border-color:red;
+  }
+
+  .pin-future::after {
+      border-top-color: red;
+  }
+
+  .pin-past {
+      border-color:yellow;
+  }
+  
+  .pin-past::after {
+      border-top-color:yellow;
+  }
+
+  .pin-now {
+      border-color:green;
+  }
+
+  .pin-now::after {
+      border-top-color:green;
   }

@@ -1,0 +1,9 @@
+<div class="events-container">
+  <ol>
+    <li *ngFor="let event of events" (click)="selectPlace(suggestion)">
+      <div class="pin pin-{{event.timeState}}"></div>
+      <div class="summary">{{event.summary}}</div>
+      <div class="description">{{event.description}}</div>
+    </li>
+  </ol>
+</div>

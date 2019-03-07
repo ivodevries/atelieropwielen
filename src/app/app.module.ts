@@ -5,11 +5,13 @@ import { routing } from './routes';
 
 import { AppComponent } from './app.component';
 import { MapComponent } from './map/map.component';
+import { EventsComponent } from './events/events.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MapComponent
+    MapComponent,
+    EventsComponent
   ],
   imports: [
     BrowserModule,

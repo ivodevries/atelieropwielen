@@ -1,1 +1,4 @@
-<div class="mapbox-map"></div>
+<div class="maps-container">
+    <div class="mapbox-map"></div>
+    <app-events (load)="addMarkers($event)"></app-events>
+</div>

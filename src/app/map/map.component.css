@@ -1,3 +1,13 @@
-.mapbox-map {
+.maps-container {
     height:100%;
+    display: flex;
+    flex-direction: column;
+}
+.mapbox-map {
+    flex:1;
+}
+
+app-events {
+    display: block;
+    height:200px;
 }
