@@ -7,18 +7,12 @@ import { AppComponent } from './app.component';
 import { MapComponent } from './map/map.component';
 import { EventsComponent } from './events/events.component';
 
+import { DateFnsModule } from 'ngx-date-fns';
+
 @NgModule({
-  declarations: [
-    AppComponent,
-    MapComponent,
-    EventsComponent
-  ],
-  imports: [
-    BrowserModule,
-    RouterModule,
-    routing
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+    declarations: [AppComponent, MapComponent, EventsComponent],
+    imports: [BrowserModule, RouterModule, routing, DateFnsModule.forRoot()],
+    providers: [],
+    bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}
