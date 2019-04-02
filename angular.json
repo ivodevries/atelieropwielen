@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ikzie": {
+    "atelieropwielen": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/ikzie",
+            "outputPath": "dist/atelieropwielen",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -58,20 +58,20 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "ikzie:build",
+            "browserTarget": "atelieropwielen:build",
             "host": "localhost",
             "port": 6574
           },
           "configurations": {
             "production": {
-              "browserTarget": "ikzie:build:production"
+              "browserTarget": "atelieropwielen:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ikzie:build"
+            "browserTarget": "atelieropwielen:build"
           }
         },
         "test": {
@@ -105,7 +105,7 @@
         }
       }
     },
-    "ikzie-e2e": {
+    "atelieropwielen-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "prefix": "",
@@ -114,11 +114,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "ikzie:serve"
+            "devServerTarget": "atelieropwielen:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "ikzie:serve:production"
+              "devServerTarget": "atelieropwielen:serve:production"
             }
           }
         },
@@ -134,5 +134,5 @@
       }
     }
   },
-  "defaultProject": "ikzie"
+  "defaultProject": "atelieropwielen"
 }
