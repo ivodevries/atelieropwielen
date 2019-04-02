@@ -3,8 +3,8 @@
     <li *ngFor="let event of events" (click)="selectPlace(suggestion)">
       <div class="pin pin-{{event.timeState}}"></div>
       <div class="summary">{{event.summary}}</div>
-      <div class="description">{{event.description}}</div>
-      <div class="timeStart">{{event.timeStart | dfnsFormat: 'D MMMM [om] HH:mm'}}</div>
+      <!-- <div class="description">{{event.description}}</div> -->
+      <div class="time-start">{{event.timeStart | dfnsFormat: 'D MMMM [om] HH:mm'}}</div>
     </li>
   </ol>
 </div>
