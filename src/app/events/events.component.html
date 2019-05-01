@@ -1,10 +1,13 @@
 <div class="events-container">
   <ol>
-    <li *ngFor="let event of events" (click)="selectPlace(suggestion)">
-      <div class="pin pin-{{event.timeState}}"></div>
-      <div class="summary">{{event.summary}}</div>
-      <!-- <div class="description">{{event.description}}</div> -->
-      <div class="time-start">{{event.timeStart | dfnsFormat: 'D MMMM [om] HH:mm'}}</div>
+    <li *ngFor="let event of events">
+      <a [routerLink]="['/map']" fragment="{{event.timeStart.toString()}}">
+
+        <div class="pin pin-{{event.timeState}}"></div>
+        <div class="summary">{{event.summary}}</div>
+        <!-- <div class="description">{{event.description}}</div> -->
+        <div class="time-start">{{event.timeStart | dfnsFormat: 'D MMMM [om] HH:mm'}}</div>
+      </a>
     </li>
   </ol>
 </div>

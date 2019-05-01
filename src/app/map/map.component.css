@@ -1,13 +1,28 @@
 .maps-container {
-    height:100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
 }
+
 .mapbox-map {
-    flex:1;
+    clip-path: circle(50% at 50% 50%);
+    position: relative;
+    z-index: 1;
+    flex: 1;
+}
+
+.mask {
+    height: 100%;
+    height: calc(100% - 200px);
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: green;
 }
 
 app-events {
     display: block;
-    height:200px;
+    height: 200px;
+    overflow-y: auto;
 }

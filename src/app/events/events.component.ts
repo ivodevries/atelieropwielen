@@ -37,6 +37,7 @@ export class EventsComponent implements OnInit {
 
         const getTimeState = (timeStart: Date, timeEnd: Date): string => {
             const startsInFuture = isFuture(timeStart);
+            return 'future';
 
             if (startsInFuture) {
                 return 'future';
@@ -74,17 +75,17 @@ export class EventsComponent implements OnInit {
                 const timeState = getTimeState(timeStart, timeEnd);
                 if (location && timeState !== 'past') {
                     return {
-                        location: location,
+                        location,
                         description: getRawProperty(rawEventItems, 'DESCRIPTION'),
                         summary: getRawProperty(rawEventItems, 'SUMMARY'),
-                        timeStart: timeStart,
-                        timeEnd: timeEnd,
-                        timeState: timeState,
+                        timeStart,
+                        timeEnd,
+                        timeState,
                         fullItem: rawEvent
                     };
                 }
             })
-            .filter(item => item !== undefined);
+            .filter(item => item !== undefined).sort((a, b) => a.timeStart > b.timeStart ? 1 : -1);
 
         // this.events = [
         //     {

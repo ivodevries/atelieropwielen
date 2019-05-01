@@ -6,18 +6,22 @@
 
 ol {
     padding:0;
+    margin:0;
 }
 
-li {
+li > a {
     display:grid;
+    color:inherit;
+    text-decoration: inherit;
     grid-template-columns: min-content 1fr min-content ;
     padding:10px 0;
     grid-gap:10px;
+    border-bottom:1px solid #ccc;
 }
 
 .time-start {
         justify-self: right;
 }
 .pin {
-    top:0;
+    top:-7px;
 }
