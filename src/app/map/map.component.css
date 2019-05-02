@@ -5,7 +5,7 @@
 }
 
 .mapbox-map {
-    clip-path: circle(50% at 50% 50%);
+    clip-path: circle(100px at 479px 272px);
     position: relative;
     z-index: 1;
     flex: 1;

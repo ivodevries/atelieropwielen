@@ -1,5 +1,7 @@
 <div class="maps-container">
-    <div class="mapbox-map"></div>
+    <div class="mapbox-map" [style.clip-path]="'circle(100px at ' +
+        this.maskLocation.x
+        + 'px ' + this.maskLocation.y + 'px)'"></div>
     <div class="mask"></div>
-    <app-events (load)="addMarkers($event)"></app-events>
+    <app-events (load)="addMarkers($event)" (eventSelected)="showEvent($event)"></app-events>
 </div>

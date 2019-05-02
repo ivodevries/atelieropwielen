@@ -1,19 +1,38 @@
-import { Component, OnInit, Output } from '@angular/core';
-import { isFuture, isPast } from 'date-fns';
+import { Component, OnInit, Output, OnDestroy } from '@angular/core';
+import { isFuture, isPast, format } from 'date-fns';
+import * as nl from 'date-fns/locale/nl';
 import { EventEmitter } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-events',
     templateUrl: './events.component.html',
     styleUrls: ['./events.component.css']
 })
-export class EventsComponent implements OnInit {
+export class EventsComponent implements OnInit, OnDestroy {
     @Output()
     load = new EventEmitter();
+    private routeSubscription: Subscription;
+    @Output()
+    eventSelected = new EventEmitter();
+
     events: any;
-    constructor() {}
+    constructor(private route: ActivatedRoute) {}
 
     async ngOnInit() {
+        const findEvent = eventId => this.events.find(event => event.id === eventId);
+        let pendingEventId;
+        this.routeSubscription = this.route.fragment.subscribe((urlHash: any) => {
+            if (this.events) {
+                const event = findEvent(urlHash);
+                if (event) {
+                    this.eventSelected.emit(event);
+                }
+            } else {
+                pendingEventId = urlHash;
+            }
+        });
         const icsUrl =
             'https://calendar.google.com/calendar/ical/ae81d9nt77nvqae5r6a006mivg%40group.calendar.google.com/public/basic.ics';
         const rawContent = await fetch(
@@ -63,9 +82,12 @@ export class EventsComponent implements OnInit {
             speeldernis: [4.441196, 51.923301],
             noorderhavenkade: [4.460395, 51.933965]
         };
+        const locationNameRegExp = new RegExp(Object.keys(lngLats).join('|'), 'i');
+        const extractLocationName = (location): string => {
+            const matches = location.match(locationNameRegExp);
 
-        console.log(rawEvents);
-
+            return matches ? matches[0] : undefined;
+        };
         this.events = rawEvents
             .map(rawEvent => {
                 const rawEventItems = rawEvent.replace(/\r/g, '').split('\n');
@@ -73,100 +95,44 @@ export class EventsComponent implements OnInit {
                 const timeStart = strToDate(getRawProperty(rawEventItems, 'DTSTART'));
                 const timeEnd = strToDate(getRawProperty(rawEventItems, 'DTEND'));
                 const timeState = getTimeState(timeStart, timeEnd);
-                if (location && timeState !== 'past') {
-                    return {
+                const description = getRawProperty(rawEventItems, 'DESCRIPTION');
+                const summary = getRawProperty(rawEventItems, 'SUMMARY');
+                const locationName = extractLocationName(location);
+
+                if (location && locationName && timeState !== 'past') {
+                    const lngLat = lngLats[locationName.toLowerCase()];
+
+                    const id = `${locationName.toLowerCase()}-${format(timeStart, 'dddd-D-MMMM-YYYY', { locale: nl })}`;
+                    const event = {
+                        id,
                         location,
-                        description: getRawProperty(rawEventItems, 'DESCRIPTION'),
-                        summary: getRawProperty(rawEventItems, 'SUMMARY'),
+                        description,
+                        summary,
                         timeStart,
                         timeEnd,
                         timeState,
+                        lngLat,
                         fullItem: rawEvent
                     };
-                }
-            })
-            .filter(item => item !== undefined).sort((a, b) => a.timeStart > b.timeStart ? 1 : -1);
-
-        // this.events = [
-        //     {
-        //         location: 'Rotterdam\\, Vroesenpark\\, 3039 CP Rotterdam\\, Nederland',
-        //         description: 'Vandaag gaan we kleuren mengen',
-        //         summary: 'Tekenen in vroesenpark',
-        //         timeStart: '20190222T100000Z',
-        //         timeEnd: '20190222T121500Z',
-        //         timeState: 'future',
-        //         fullItem:
-        //             '\r\nBEGIN:VEVENT\r\nDTSTART:20190222T100000Z\r\nDTEND:20190222T121500Z\r\nDTSTAMP:20190224T211704Z\r\nUID:3rsf90nam2296piird0ng7dsj5@google.com\r\nCREATED:20190220T200109Z\r\nDESCRIPTION:\r\nLAST-MODIFIED:20190220T200208Z\r\nLOCATION:Rotterdam\\, Vroesenpark\\, 3039 CP Rotterdam\\, Nederland\r\nSEQUENCE:0\r\nSTATUS:CONFIRMED\r\nSUMMARY:Tekenen in vroesenpark\r\nTRANSP:OPAQUE\r\n'
-        //     },
-        //     {
-        //         location: 'Rotterdam\\, Vroesenpark\\, 3039 CP Rotterdam\\, Nederland',
-        //         description: 'Vandaag gaan we kleuren mengen',
-        //         summary: 'Tekenen in Vroesenpark',
-        //         timeStart: '20190222T100000Z',
-        //         timeEnd: '20190222T121500Z',
-        //         timeState: 'future',
-        //         fullItem:
-        //             '\r\nBEGIN:VEVENT\r\nDTSTART:20190222T100000Z\r\nDTEND:20190222T121500Z\r\nDTSTAMP:20190224T211704Z\r\nUID:3rsf90nam2296piird0ng7dsj5@google.com\r\nCREATED:20190220T200109Z\r\nDESCRIPTION:\r\nLAST-MODIFIED:20190220T200208Z\r\nLOCATION:Rotterdam\\, Vroesenpark\\, 3039 CP Rotterdam\\, Nederland\r\nSEQUENCE:0\r\nSTATUS:CONFIRMED\r\nSUMMARY:Tekenen in vroesenpark\r\nTRANSP:OPAQUE\r\n'
-        //     },
-        //     {
-        //         location: 'Rotterdam\\, Statensingel\\, 3039 CP Rotterdam\\, Nederland',
-        //         description: 'Vandaag gaan we kleuren mengen',
-        //         summary: 'Tekenen in vroesenpark',
-        //         timeStart: '20190222T100000Z',
-        //         timeEnd: '20190222T121500Z',
-        //         timeState: 'now',
-        //         fullItem:
-        //             '\r\nBEGIN:VEVENT\r\nDTSTART:20190222T100000Z\r\nDTEND:20190222T121500Z\r\nDTSTAMP:20190224T211704Z\r\nUID:3rsf90nam2296piird0ng7dsj5@google.com\r\nCREATED:20190220T200109Z\r\nDESCRIPTION:\r\nLAST-MODIFIED:20190220T200208Z\r\nLOCATION:Rotterdam\\, Vroesenpark\\, 3039 CP Rotterdam\\, Nederland\r\nSEQUENCE:0\r\nSTATUS:CONFIRMED\r\nSUMMARY:Tekenen in vroesenpark\r\nTRANSP:OPAQUE\r\n'
-        //     },
-        //     {
-        //         location: 'Rotterdam\\, Speeldernis\\, 3039 CP Rotterdam\\, Nederland',
-        //         description: 'Vandaag gaan we kleuren mengen',
-        //         summary: 'Tekenen in Speeldernis',
-        //         timeStart: '20190222T100000Z',
-        //         timeEnd: '20190222T121500Z',
-        //         timeState: 'past',
-        //         fullItem:
-        //             '\r\nBEGIN:VEVENT\r\nDTSTART:20190222T100000Z\r\nDTEND:20190222T121500Z\r\nDTSTAMP:20190224T211704Z\r\nUID:3rsf90nam2296piird0ng7dsj5@google.com\r\nCREATED:20190220T200109Z\r\nDESCRIPTION:\r\nLAST-MODIFIED:20190220T200208Z\r\nLOCATION:Rotterdam\\, Vroesenpark\\, 3039 CP Rotterdam\\, Nederland\r\nSEQUENCE:0\r\nSTATUS:CONFIRMED\r\nSUMMARY:Tekenen in vroesenpark\r\nTRANSP:OPAQUE\r\n'
-        //     },
-        //     {
-        //         location: 'Rotterdam\\, noorderhavenkade\\, 3039 CP Rotterdam\\, Nederland',
-        //         description: 'Vandaag gaan we kleuren mengen',
-        //         summary: 'Tekenen in noorderhavenkade',
-        //         timeStart: '20190222T100000Z',
-        //         timeEnd: '20190222T121500Z',
-        //         timeState: 'past',
-        //         fullItem:
-        //             '\r\nBEGIN:VEVENT\r\nDTSTART:20190222T100000Z\r\nDTEND:20190222T121500Z\r\nDTSTAMP:20190224T211704Z\r\nUID:3rsf90nam2296piird0ng7dsj5@google.com\r\nCREATED:20190220T200109Z\r\nDESCRIPTION:\r\nLAST-MODIFIED:20190220T200208Z\r\nLOCATION:Rotterdam\\, Vroesenpark\\, 3039 CP Rotterdam\\, Nederland\r\nSEQUENCE:0\r\nSTATUS:CONFIRMED\r\nSUMMARY:Tekenen in vroesenpark\r\nTRANSP:OPAQUE\r\n'
-        //     },
-        //     {
-        //         location: 'Rotterdam\\, noorderhavenkade\\, 3039 CP Rotterdam\\, Nederland',
-        //         description: 'Vandaag gaan we kleuren mengen',
-        //         summary: 'Tekenen in noorderhavenkade',
-        //         timeStart: '20190222T100000Z',
-        //         timeEnd: '20190222T121500Z',
-        //         timeState: 'future',
-        //         fullItem:
-        //             '\r\nBEGIN:VEVENT\r\nDTSTART:20190222T100000Z\r\nDTEND:20190222T121500Z\r\nDTSTAMP:20190224T211704Z\r\nUID:3rsf90nam2296piird0ng7dsj5@google.com\r\nCREATED:20190220T200109Z\r\nDESCRIPTION:\r\nLAST-MODIFIED:20190220T200208Z\r\nLOCATION:Rotterdam\\, Vroesenpark\\, 3039 CP Rotterdam\\, Nederland\r\nSEQUENCE:0\r\nSTATUS:CONFIRMED\r\nSUMMARY:Tekenen in vroesenpark\r\nTRANSP:OPAQUE\r\n'
-        //     }
-        // ];
-
-        const locationNameRegExp = new RegExp(Object.keys(lngLats).join('|'), 'i');
-        const extractLocationName = (location): string => {
-            const matches = location.match(locationNameRegExp);
-
-            return matches ? matches[0] : undefined;
-        };
-        this.events = this.events
-            .map(event => {
-                const locationName = extractLocationName(event.location);
-                if (locationName) {
-                    event.lngLat = lngLats[locationName.toLowerCase()];
                     return event;
                 }
             })
-            .filter(event => event);
+            .filter(item => item !== undefined)
+            .sort((a, b) => (a.timeStart > b.timeStart ? 1 : -1));
 
-        console.log(this.events);
+        if (pendingEventId) {
+            const event = findEvent(pendingEventId);
+            if (event) {
+                console.log('emitting eventSelected with', event);
+                this.eventSelected.emit(event);
+            }
+        }
         this.load.emit(this.events);
+    }
+
+    ngOnDestroy() {
+        if (this.routeSubscription) {
+            this.routeSubscription.unsubscribe();
+        }
     }
 }

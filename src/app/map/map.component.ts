@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { NavigationEnd, Router, NavigationStart, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 declare const mapboxgl: any;
 
 @Component({
@@ -8,6 +10,8 @@ declare const mapboxgl: any;
 })
 export class MapComponent implements OnInit {
     map: any;
+    maskLocation: { x: undefined; y: undefined };
+
     constructor() {}
 
     ngOnInit() {
@@ -24,7 +28,11 @@ export class MapComponent implements OnInit {
         };
 
         this.map = new mapboxgl.Map(mapOptions);
-        // this.addMarkers();
+    }
+
+    showEvent(event) {
+        this.maskLocation = this.map.project(event.lngLat.map(Math.round));
+        console.log(this.maskLocation);
     }
 
     addMarkers(events) {
