@@ -5,7 +5,7 @@
 }
 
 .mapbox-map {
-    clip-path:circle(400px at  50% 50%);
+    clip-path:circle(400px at 50% 50%);
     transition: clip-path 0.5s ease;
     position: relative;
     z-index: 1;
@@ -19,15 +19,45 @@
     position: absolute;
     top: 0;
     left: 0;
-    background: #5ba343;
     transition: all 0.5s ease;
+    background:#eee;
+}
+
+.mask::after {
+    content: "";
+    opacity: 0.15;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    z-index: -1;
+    background-image:url(src/assets/images/bakfiets.jpg);
+    background-size: 100% 100%;
 }
 .mask.visible {
     transform:translateY(0);
 }
 
 .event-description {
-    transition: all 0.5s ease;
+    color:#444;
+    font-size:0.8rem;
+    padding:10px;
+    margin:0;
+    transform: translateX(-500px);
+}
+
+.event-header {
+    position: absolute;
+    font-size:0.9rem;
+    font-weight: bold;
+    margin-left:10px;
+}
+
+.mask.visible .event-description {
+    transform: translateX(0);
+    transition: transform .5s ease;
+    transition-delay: .5s;
 }
 /* .mask.text-top .event-description {
     margin:0;
@@ -44,7 +74,34 @@
     bottom:0;
     transition: all 0.5s ease;
 } */
-
+.close {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 32px;
+    height: 32px;
+    opacity: 0.8;
+    z-index:2;
+    background:#fff;
+  }
+  .close:hover {
+    opacity: 1;
+  }
+  .close:before, .close:after {
+    position: absolute;
+    left: 15px;
+    content: ' ';
+    height: 33px;
+    width: 2px;
+    background-color: #333;
+  }
+  .close:before {
+    transform: rotate(45deg);
+  }
+  .close:after {
+    transform: rotate(-45deg);
+  }
+  
 app-events {
     display: block;
     height: 200px;

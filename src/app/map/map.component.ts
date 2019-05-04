@@ -1,21 +1,29 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { NavigationEnd, Router, NavigationStart, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Map } from 'immutable';
+import { EventInterface, EventList } from '../models/event';
 declare const mapboxgl: any;
+
+interface MaskLocationInterface {
+    x: number;
+    y: number;
+}
 
 @Component({
     selector: 'app-map',
     templateUrl: './map.component.html',
-    styleUrls: ['./map.component.css']
+    styleUrls: ['./map.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapComponent implements OnInit {
     map: any;
-    maskLocation: { x: number; y: number };
+    maskLocation: Map<any, MaskLocationInterface>;
     selectedEvent: any;
     @ViewChild('mapboxMap') private mapboxMap: ElementRef;
 
-    constructor(private sanitizer: DomSanitizer) {}
+    constructor(private sanitizer: DomSanitizer, private cd: ChangeDetectorRef, private router: Router) {}
 
     ngOnInit() {
         const mapboxAccessToken =
@@ -33,40 +41,67 @@ export class MapComponent implements OnInit {
         this.map = new mapboxgl.Map(mapOptions);
     }
 
-    showEvent(event) {
-        this.selectedEvent = event;
-        this.maskLocation = this.map.project(event.lngLat);
-        this.maskLocation.x = Math.round(this.maskLocation.x);
-        this.maskLocation.y = Math.round(this.maskLocation.y);
-        console.log(this.maskLocation);
+    showEvent(event: Map<any, EventInterface>) {
+        const timeout = this.maskLocation ? 500 : 0;
+        delete this.selectedEvent;
+        delete this.maskLocation;
+        setTimeout(() => {
+            this.selectedEvent = event;
+            if (event) {
+                const maskLocation = this.map.project(event.get('lngLat'));
+                maskLocation.x = Math.round(maskLocation.x);
+                maskLocation.y = Math.round(maskLocation.y);
+                this.maskLocation = Map(maskLocation);
+            }
+            this.cd.markForCheck();
+        }, timeout);
     }
 
     getClipPath(maskLocation) {
         return maskLocation
             ? this.sanitizer.bypassSecurityTrustStyle(
-                  'circle(80px at ' + this.maskLocation.x + 'px ' + this.maskLocation.y + 'px)'
+                  'circle(80px at ' + this.maskLocation.get('x') + 'px ' + this.maskLocation.get('y') + 'px)'
               )
             : '';
     }
 
-    getDescriptionPosition(maskLocation, mask, description) {
-        if (maskLocation && maskLocation.y > 300) {
-            return 'translateY(0px)';
-        }
-        return 'translateY(385px)';
+    getDescriptionPosition(maskLocation: Map<any, MaskLocationInterface>, mask, description): string {
+        const maskHeight = mask.clientHeight;
+        const breakPoint = maskHeight / 2;
+        const locationHeight = 80;
 
+        if (maskLocation) {
+            const y = (maskLocation.get('y') as unknown) as number;
+
+            if (y > breakPoint) {
+                return '20px';
+            }
+            return y + 80 - 14 + 'px';
+        }
+
+        return '0px';
     }
 
-    addMarkers(events) {
+    addMarkers(events: EventList) {
         const bounds = new mapboxgl.LngLatBounds();
 
         events.forEach(event => {
+            // todo only add markers for fist upcoming events
             const markerContainer = document.createElement('div');
-            markerContainer.innerHTML = `<div class="pin pin-${event.timeState}"></div>`;
-            new mapboxgl.Marker(markerContainer).setLngLat(event.lngLat).addTo(this.map);
-            bounds.extend(event.lngLat);
+            markerContainer.innerHTML = `<div class="pin pin-${event.get('timeState')}"></div>`;
+            const eventId = event.get('id') as unknown as string;
+            markerContainer.addEventListener('click', () => {
+                this.router.navigate(['/map'], { fragment: eventId });
+            });
+            new mapboxgl.Marker(markerContainer).setLngLat(event.get('lngLat')).addTo(this.map);
+            bounds.extend(event.get('lngLat'));
         });
-        this.map.fitBounds(bounds, { padding: 50 });
+        if (events.size > 1) {
+            this.map.fitBounds(bounds, { padding: 50, duration: 0 });
+        } else if (events.size === 1) {
+            this.map.setCenter(events.get(0).get('lngLat'));
+            this.map.setZoom(14);
+        }
     }
 
     addMarkers2() {

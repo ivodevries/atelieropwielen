@@ -7,7 +7,10 @@ html, body, app-root, .container {
 body {
     max-width:800px;
     margin:0 auto;
-    background:#ccc;
+    background:#fff;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    -webkit-text-size-adjust: 100%;
+    font-size: 62.5%;
 }
 
 app-root {

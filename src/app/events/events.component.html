@@ -1,12 +1,12 @@
 <div class="events-container">
   <ol>
     <li *ngFor="let event of events">
-      <a [routerLink]="['/map']" fragment="{{event.id}}">
+      <a [routerLink]="['/map']" fragment="{{event.get('id')}}">
 
-        <div class="pin pin-{{event.timeState}}"></div>
-        <div class="summary">{{event.summary}}</div>
+        <div class="pin pin-{{event.get('timeState')}}"></div>
+        <div class="summary">{{event.get('summary')}}</div>
         <!-- <div class="description">{{event.description}}</div> -->
-        <div class="time-start">{{event.timeStart | dfnsFormat: 'D MMMM [om]
+        <div class="time-start">{{event.get('timeStart') | dfnsFormat: 'D MMMM [om]
           HH:mm'}}</div>
       </a>
     </li>

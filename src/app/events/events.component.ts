@@ -4,6 +4,8 @@ import * as nl from 'date-fns/locale/nl';
 import { EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { Map, List } from 'immutable';
+import { EventInterface } from '../models/event';
 
 @Component({
     selector: 'app-events',
@@ -17,18 +19,17 @@ export class EventsComponent implements OnInit, OnDestroy {
     @Output()
     eventSelected = new EventEmitter();
 
-    events: any;
+    events: List<Map<any, EventInterface>>;
     constructor(private route: ActivatedRoute) {}
 
     async ngOnInit() {
-        const findEvent = eventId => this.events.find(event => event.id === eventId);
+        const findEvent = eventId => this.events.find(event => event.get('id') === eventId);
         let pendingEventId;
         this.routeSubscription = this.route.fragment.subscribe((urlHash: any) => {
             if (this.events) {
                 const event = findEvent(urlHash);
-                if (event) {
-                    this.eventSelected.emit(event);
-                }
+                console.log('emitting', urlHash);
+                this.eventSelected.emit(event);
             } else {
                 pendingEventId = urlHash;
             }
@@ -43,7 +44,7 @@ export class EventsComponent implements OnInit, OnDestroy {
         const getRawProperty = (rawEventItems, prop) => {
             const item = rawEventItems.find(rawEventItem => rawEventItem.indexOf(prop) === 0);
             if (item) {
-                return item.replace(prop + ':', '');
+                return item.replace(prop + ':', '').replace(/\\,/g, ',');
             }
             return prop;
         };
@@ -56,7 +57,7 @@ export class EventsComponent implements OnInit, OnDestroy {
 
         const getTimeState = (timeStart: Date, timeEnd: Date): string => {
             const startsInFuture = isFuture(timeStart);
-            return 'future';
+            // return 'future';
 
             if (startsInFuture) {
                 return 'future';
@@ -91,11 +92,11 @@ export class EventsComponent implements OnInit, OnDestroy {
 
         const defaultDescription = `
         Er rijdt sinds kort een wel een heel bijzonder voertuig door Rotterdam. Een bakfiets vol tekentafeltjes en de mooiste kunstmaterialen, zodat er overal en altijd getekend en geschilderd kan worden. En, met aan het stuur tekenjuf Sonja.
-        
+
         Sonja van Dolron, kunstenaar en bevlogen kunstdocente, is de initiatiefnemer van het Atelier op wielen.  Met de bakfiets, gesteund door de wijkraad Blijdorp, rijdt ze door de wijk Blijdorp om workshops op locatie te verzorgen.
-        
+
         Op vier vaste locaties in Blijdorp is het atelier met regelmaat te vinden en kan iedereen tegen vrijwillige bijdrage mee doen. `;
-        this.events = rawEvents
+        this.events = List(rawEvents
             .map(rawEvent => {
                 const rawEventItems = rawEvent.replace(/\r/g, '').split('\n');
                 const location = getRawProperty(rawEventItems, 'LOCATION');
@@ -110,7 +111,7 @@ export class EventsComponent implements OnInit, OnDestroy {
                     const lngLat = lngLats[locationName.toLowerCase()];
 
                     const id = `${locationName.toLowerCase()}-${format(timeStart, 'dddd-D-MMMM-YYYY', { locale: nl })}`;
-                    const event = {
+                    const event: EventInterface = {
                         id,
                         location,
                         description,
@@ -125,7 +126,7 @@ export class EventsComponent implements OnInit, OnDestroy {
                 }
             })
             .filter(item => item !== undefined)
-            .sort((a, b) => (a.timeStart > b.timeStart ? 1 : -1));
+            .sort((a, b) => (a.timeStart > b.timeStart ? 1 : -1)).map(Map));
 
         if (pendingEventId) {
             const event = findEvent(pendingEventId);

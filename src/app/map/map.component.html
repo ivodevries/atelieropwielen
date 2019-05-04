@@ -1,9 +1,13 @@
 <div class="maps-container">
     <div class="mapbox-map" [style.clip-path]="getClipPath(maskLocation)" #mapboxMap></div>
     <div [class.visible]="selectedEvent" [style.transform]="'translateY('+ !selectedEvent ? mapboxMap.clientHeight : 0+'px)'" class="mask" #mask>
-        <p class="event-description" [style.transform]="getDescriptionPosition(maskLocation, mask, description)" #description>
-
-        </p>
+        <a *ngIf="selectedEvent" [routerLink]="['/map']" fragment="" class="close"></a>
+        <h2 *ngIf="selectedEvent" class="event-header"><time dateTime="{{selectedEvent.get('timeStart').toISOString()}}">{{selectedEvent.get('timeStart') | dfnsFormat: 'D MMMM [om] HH:mm'}}</time> - {{selectedEvent.get('summary')}}</h2>
+        <div *ngIf="selectedEvent" class="event-description" [style.margin-top]="getDescriptionPosition(maskLocation, mask, description)" #description>
+            <p>
+                {{selectedEvent.get('description')}}
+            </p>
+        </div>
     </div>
     <app-events (load)="addMarkers($event)" (eventSelected)="showEvent($event)"></app-events>
 </div>
