@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NavigationEnd, Router, NavigationStart, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { DomSanitizer } from '@angular/platform-browser';
 declare const mapboxgl: any;
 
 @Component({
@@ -10,9 +11,11 @@ declare const mapboxgl: any;
 })
 export class MapComponent implements OnInit {
     map: any;
-    maskLocation: { x: undefined; y: undefined };
+    maskLocation: { x: number; y: number };
+    selectedEvent: any;
+    @ViewChild('mapboxMap') private mapboxMap: ElementRef;
 
-    constructor() {}
+    constructor(private sanitizer: DomSanitizer) {}
 
     ngOnInit() {
         const mapboxAccessToken =
@@ -31,8 +34,27 @@ export class MapComponent implements OnInit {
     }
 
     showEvent(event) {
-        this.maskLocation = this.map.project(event.lngLat.map(Math.round));
+        this.selectedEvent = event;
+        this.maskLocation = this.map.project(event.lngLat);
+        this.maskLocation.x = Math.round(this.maskLocation.x);
+        this.maskLocation.y = Math.round(this.maskLocation.y);
         console.log(this.maskLocation);
+    }
+
+    getClipPath(maskLocation) {
+        return maskLocation
+            ? this.sanitizer.bypassSecurityTrustStyle(
+                  'circle(80px at ' + this.maskLocation.x + 'px ' + this.maskLocation.y + 'px)'
+              )
+            : '';
+    }
+
+    getDescriptionPosition(maskLocation, mask, description) {
+        if (maskLocation && maskLocation.y > 300) {
+            return 'translateY(0px)';
+        }
+        return 'translateY(385px)';
+
     }
 
     addMarkers(events) {

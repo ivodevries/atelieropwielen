@@ -5,7 +5,8 @@
 }
 
 .mapbox-map {
-    clip-path: circle(100px at 479px 272px);
+    clip-path:circle(400px at  50% 50%);
+    transition: clip-path 0.5s ease;
     position: relative;
     z-index: 1;
     flex: 1;
@@ -18,11 +19,36 @@
     position: absolute;
     top: 0;
     left: 0;
-    background: green;
+    background: #5ba343;
+    transition: all 0.5s ease;
 }
+.mask.visible {
+    transform:translateY(0);
+}
+
+.event-description {
+    transition: all 0.5s ease;
+}
+/* .mask.text-top .event-description {
+    margin:0;
+    padding:0;
+    position:absolute;
+    top:0;
+    transition: all 0.5s ease;
+
+}
+.mask.text-bottom .event-description {
+    margin:0;
+    padding:0;
+    position:absolute;
+    bottom:0;
+    transition: all 0.5s ease;
+} */
 
 app-events {
     display: block;
     height: 200px;
     overflow-y: auto;
+    position: relative;
+    z-index: 2;
 }

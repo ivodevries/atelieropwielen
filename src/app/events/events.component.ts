@@ -88,6 +88,13 @@ export class EventsComponent implements OnInit, OnDestroy {
 
             return matches ? matches[0] : undefined;
         };
+
+        const defaultDescription = `
+        Er rijdt sinds kort een wel een heel bijzonder voertuig door Rotterdam. Een bakfiets vol tekentafeltjes en de mooiste kunstmaterialen, zodat er overal en altijd getekend en geschilderd kan worden. En, met aan het stuur tekenjuf Sonja.
+        
+        Sonja van Dolron, kunstenaar en bevlogen kunstdocente, is de initiatiefnemer van het Atelier op wielen.  Met de bakfiets, gesteund door de wijkraad Blijdorp, rijdt ze door de wijk Blijdorp om workshops op locatie te verzorgen.
+        
+        Op vier vaste locaties in Blijdorp is het atelier met regelmaat te vinden en kan iedereen tegen vrijwillige bijdrage mee doen. `;
         this.events = rawEvents
             .map(rawEvent => {
                 const rawEventItems = rawEvent.replace(/\r/g, '').split('\n');
@@ -95,7 +102,7 @@ export class EventsComponent implements OnInit, OnDestroy {
                 const timeStart = strToDate(getRawProperty(rawEventItems, 'DTSTART'));
                 const timeEnd = strToDate(getRawProperty(rawEventItems, 'DTEND'));
                 const timeState = getTimeState(timeStart, timeEnd);
-                const description = getRawProperty(rawEventItems, 'DESCRIPTION');
+                const description = getRawProperty(rawEventItems, 'DESCRIPTION') || defaultDescription;
                 const summary = getRawProperty(rawEventItems, 'SUMMARY');
                 const locationName = extractLocationName(location);
 

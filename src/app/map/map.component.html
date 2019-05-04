@@ -1,7 +1,9 @@
 <div class="maps-container">
-    <div class="mapbox-map" [style.clip-path]="'circle(100px at ' +
-        this.maskLocation.x
-        + 'px ' + this.maskLocation.y + 'px)'"></div>
-    <div class="mask"></div>
+    <div class="mapbox-map" [style.clip-path]="getClipPath(maskLocation)" #mapboxMap></div>
+    <div [class.visible]="selectedEvent" [style.transform]="'translateY('+ !selectedEvent ? mapboxMap.clientHeight : 0+'px)'" class="mask" #mask>
+        <p class="event-description" [style.transform]="getDescriptionPosition(maskLocation, mask, description)" #description>
+
+        </p>
+    </div>
     <app-events (load)="addMarkers($event)" (eventSelected)="showEvent($event)"></app-events>
 </div>
