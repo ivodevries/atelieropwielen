@@ -28,7 +28,7 @@ export class EventsComponent implements OnInit, OnDestroy {
         this.routeSubscription = this.route.fragment.subscribe((urlHash: any) => {
             if (this.events) {
                 const event = findEvent(urlHash);
-                console.log('emitting', urlHash);
+
                 this.eventSelected.emit(event);
             } else {
                 pendingEventId = urlHash;
@@ -96,42 +96,46 @@ export class EventsComponent implements OnInit, OnDestroy {
         Sonja van Dolron, kunstenaar en bevlogen kunstdocente, is de initiatiefnemer van het Atelier op wielen.  Met de bakfiets, gesteund door de wijkraad Blijdorp, rijdt ze door de wijk Blijdorp om workshops op locatie te verzorgen.
 
         Op vier vaste locaties in Blijdorp is het atelier met regelmaat te vinden en kan iedereen tegen vrijwillige bijdrage mee doen. `;
-        this.events = List(rawEvents
-            .map(rawEvent => {
-                const rawEventItems = rawEvent.replace(/\r/g, '').split('\n');
-                const location = getRawProperty(rawEventItems, 'LOCATION');
-                const timeStart = strToDate(getRawProperty(rawEventItems, 'DTSTART'));
-                const timeEnd = strToDate(getRawProperty(rawEventItems, 'DTEND'));
-                const timeState = getTimeState(timeStart, timeEnd);
-                const description = getRawProperty(rawEventItems, 'DESCRIPTION') || defaultDescription;
-                const summary = getRawProperty(rawEventItems, 'SUMMARY');
-                const locationName = extractLocationName(location);
+        this.events = List(
+            rawEvents
+                .map(rawEvent => {
+                    const rawEventItems = rawEvent.replace(/\r/g, '').split('\n');
+                    const location = getRawProperty(rawEventItems, 'LOCATION');
+                    const timeStart = strToDate(getRawProperty(rawEventItems, 'DTSTART'));
+                    const timeEnd = strToDate(getRawProperty(rawEventItems, 'DTEND'));
+                    const timeState = getTimeState(timeStart, timeEnd);
+                    const description = getRawProperty(rawEventItems, 'DESCRIPTION') || defaultDescription;
+                    const summary = getRawProperty(rawEventItems, 'SUMMARY');
+                    const locationName = extractLocationName(location);
 
-                if (location && locationName && timeState !== 'past') {
-                    const lngLat = lngLats[locationName.toLowerCase()];
+                    if (location && locationName && timeState !== 'past') {
+                        const lngLat = lngLats[locationName.toLowerCase()];
 
-                    const id = `${locationName.toLowerCase()}-${format(timeStart, 'dddd-D-MMMM-YYYY', { locale: nl })}`;
-                    const event: EventInterface = {
-                        id,
-                        location,
-                        description,
-                        summary,
-                        timeStart,
-                        timeEnd,
-                        timeState,
-                        lngLat,
-                        fullItem: rawEvent
-                    };
-                    return event;
-                }
-            })
-            .filter(item => item !== undefined)
-            .sort((a, b) => (a.timeStart > b.timeStart ? 1 : -1)).map(Map));
+                        const id = `${locationName.toLowerCase()}-${format(timeStart, 'dddd-D-MMMM-YYYY', {
+                            locale: nl
+                        })}`;
+                        const event: EventInterface = {
+                            id,
+                            location,
+                            description,
+                            summary,
+                            timeStart,
+                            timeEnd,
+                            timeState,
+                            lngLat,
+                            fullItem: rawEvent
+                        };
+                        return event;
+                    }
+                })
+                .filter(item => item !== undefined)
+                .sort((a, b) => (a.timeStart > b.timeStart ? 1 : -1))
+                .map(Map)
+        );
 
         if (pendingEventId) {
             const event = findEvent(pendingEventId);
             if (event) {
-                console.log('emitting eventSelected with', event);
                 this.eventSelected.emit(event);
             }
         }

@@ -60,7 +60,7 @@ export class MapComponent implements OnInit {
     getClipPath(maskLocation) {
         return maskLocation
             ? this.sanitizer.bypassSecurityTrustStyle(
-                  'circle(80px at ' + this.maskLocation.get('x') + 'px ' + this.maskLocation.get('y') + 'px)'
+                  'circle(15% at ' + this.maskLocation.get('x') + 'px ' + this.maskLocation.get('y') + 'px)'
               )
             : '';
     }
