@@ -42,9 +42,19 @@ export class EventsComponent implements OnInit, OnDestroy {
         const rawEvents = rawContent.split('END:VEVENT').filter(item => item.indexOf('BEGIN:VEVENT') > -1);
 
         const getRawProperty = (rawEventItems, prop) => {
-            const item = rawEventItems.find(rawEventItem => rawEventItem.indexOf(prop) === 0);
+            console.log(rawEventItems);
+            let itemIndex = rawEventItems.findIndex(rawEventItem => rawEventItem.indexOf(prop) === 0);
+
+            let item = rawEventItems[itemIndex];
             if (item) {
-                return item.replace(prop + ':', '').replace(/\\,/g, ',');
+                if (prop === 'DESCRIPTION') {
+                    let nextItem = rawEventItems[++itemIndex];
+                    while (nextItem.indexOf(' ') === 0) {
+                        item = item + nextItem.trimLeft();
+                        nextItem = rawEventItems[++itemIndex];
+                    }
+                }
+                return item.replace(prop + ':', '').replace(/\\,/g, ',').replace(/\\n/g, '\n');
             }
             return prop;
         };

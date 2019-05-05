@@ -40,6 +40,7 @@
 }
 
 .event-description {
+    white-space: pre-line;
     color:#444;
     font-size:0.8rem;
     padding:10px;
